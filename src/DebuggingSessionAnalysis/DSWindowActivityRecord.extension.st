@@ -10,12 +10,8 @@ DSWindowActivityRecord >> debuggingActions [
 
 { #category : '*DebuggingSessionAnalysis' }
 DSWindowActivityRecord >> hasDebuggingOperations [
-	^ self events anySatisfy: [ :e | e isKindOf: DSStepRecord ]
-"	self debuggingActions do: [ :act |
-		({'Over' . 'Into' . 'Through' . 'Restart' . 'Proceed'} includes: act eventName) ifTrue: [ ^ true ]
-	].
-	^ false.
-"
+
+	^ self events anySatisfy: [ :e | e isKindOf: DSAbstractDebuggerActionRecord ]
 ]
 
 { #category : '*DebuggingSessionAnalysis' }

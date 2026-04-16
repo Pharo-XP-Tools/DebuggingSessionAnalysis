@@ -36,11 +36,8 @@ DSA >> fromEvents: aCollection [
 { #category : 'public' }
 DSA >> fromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
-	
-	"es := OCDbgExampleCode loadDataFromPath: aFilename."
-	self assert: [ aFilename isString ].
-	self assert: [ aFilename endsWith: '.ston' ].
-	events := STON fromString: aFilename asFileReference readStream contents.
+
+	events := DSSpy materialize: aFilename asFileReference.
 	history := DSRecordHistory on: events.
 	self populateWindows.
 	^ self
@@ -64,11 +61,12 @@ DSA >> initialize [
 ]
 
 { #category : 'public - inspector' }
-DSA >> inspectorCanvas [
+DSA >> inspectorCanvas: aBuilder [
+
 	<inspectorPresentationOrder: 50 title: 'Timeline'>
-	^ SpRoassal3InspectorPresenter new
-		canvas: (self visualize: events);
-		yourself
+	^ (aBuilder instantiate: SpRoassalInspectorPresenter)
+		  canvas: (self visualize: events);
+		  yourself
 ]
 
 { #category : 'public - inspector' }
@@ -78,11 +76,12 @@ DSA >> inspectorCanvasContext: aContext [
 ]
 
 { #category : 'public - inspector' }
-DSA >> inspectorVisualizeWindowFlow [
+DSA >> inspectorVisualizeWindowFlow: aBuilder [
+
 	<inspectorPresentationOrder: 50 title: 'Window flow'>
-	^ SpRoassal3InspectorPresenter new
-		canvas: self visualizeWindowFlow;
-		yourself
+	^ (aBuilder instantiate: SpRoassalInspectorPresenter)
+		  canvas: self visualizeWindowFlow;
+		  yourself
 ]
 
 { #category : 'public - inspector' }
@@ -92,66 +91,65 @@ DSA >> inspectorVisualizeWindowFlowContext: aContext [
 ]
 
 { #category : 'public - inspector' }
-DSA >> inspectorVisualizeWindowHistory [
+DSA >> inspectorVisualizeWindowHistory: aBuilder [
+
 	<inspectorPresentationOrder: 50 title: 'Window History'>
-	^ SpRoassal3InspectorPresenter new
-		canvas: self visualizeHistory;
-		yourself
+	^ (aBuilder instantiate: SpRoassalInspectorPresenter)
+		  canvas: self visualizeHistory;
+		  yourself
 ]
 
 { #category : 'public - inspector' }
-DSA >> inspectorWindow [
+DSA >> inspectorWindow: aBuilder [
+
 	<inspectorPresentationOrder: 90 title: 'All windows'>
-	^ SpListPresenter new
-		items: self windows;
-		yourself
+	^ aBuilder newList
+		  items: self windows;
+		  yourself
 ]
 
 { #category : 'public - inspector' }
-DSA >> inspectorWindowTimeline [
+DSA >> inspectorWindowTimeline: aBuilder [
+
 	<inspectorPresentationOrder: 90 title: 'Window timeline'>
-	^ SpRoassal3InspectorPresenter new
-		canvas: self visualizeWindowTimelines;
-		yourself
+	
+	^ (aBuilder instantiate: SpRoassalInspectorPresenter)
+		  canvas: self visualizeWindowTimelines;
+		  yourself
 ]
 
 { #category : 'accessing' }
 DSA >> pingpongWindows [
+
 	| pWindows |
 	pWindows := OrderedCollection new.
-	self windows do: [ :win |
-		(win nextWindows anySatisfy: [ :ww | ww nextWindows includes: win ])
-			ifTrue: [ pWindows add: win ]
-	].
+	self windows do: [ :win | (win nextWindows anySatisfy: [ :ww | ww nextWindows includes: win ]) ifTrue: [ pWindows add: win ] ].
 	^ pWindows
 ]
 
 { #category : 'private' }
 DSA >> populateWindows [
+
 	| previousWindow currentWindow isPreviousWindowClosed |
 	windows := OrderedCollection new.
 	groups := (events groupedBy: #windowId) associations.
 	groups do: [ :assoc |
-		| ww |
-		ww := DSAWindow new.
-		ww windowId: assoc key.
-		ww events: assoc value.
-		ww toolInfos: (history toolInfosFor: assoc key).
-		windows add: ww ].
-
+			| window |
+			window := DSAWindow new.
+			window windowId: assoc key.
+			window events: assoc value.
+			window toolInfos: (history toolInfosFor: assoc key).
+			windows add: window ]. 
+		
+	"Part below seems useless"
 	previousWindow := nil.
 	isPreviousWindowClosed := false.
 	events do: [ :anEvent |
-		currentWindow := self windowForEvent: anEvent.
-		(previousWindow notNil and: [ previousWindow ~~ currentWindow ]) ifTrue: [
-			isPreviousWindowClosed ifFalse: [ 
-				currentWindow numberOfEvents > 3 ifTrue: [ 
-					previousWindow addNextWindow: currentWindow ] ]
-		].
-		previousWindow := currentWindow.
-		isPreviousWindowClosed := anEvent isKindOf: DSWindowClosedRecord
-	]
-	
+			currentWindow := self windowForEvent: anEvent.
+			(previousWindow notNil and: [ previousWindow ~~ currentWindow ]) ifTrue: [
+				isPreviousWindowClosed ifFalse: [ currentWindow numberOfEvents > 3 ifTrue: [ previousWindow addNextWindow: currentWindow ] ] ].
+			previousWindow := currentWindow.
+			isPreviousWindowClosed := anEvent isKindOf: DSWindowClosedRecord ]
 ]
 
 { #category : 'accessing' }
@@ -167,16 +165,18 @@ DSA >> setOffsetMinute: min seconds: sec [
 
 { #category : 'private' }
 DSA >> visualize: someEvents [
-	^ DSAVisualization new events: someEvents; visualize
+
+	^ DSAVisualization new
+		  events: someEvents;
+		  visualize
 ]
 
 { #category : 'public' }
 DSA >> visualizeFromFileName: aFilename [
 	"Public method. Entry point of the Visualization Framework."
-	
+
 	"es := OCDbgExampleCode loadDataFromPath: aFilename."
-	self assert: [ aFilename isString ].
-	self assert: [ aFilename endsWith: '.ston' ].
+
 	events := STON fromString: aFilename asFileReference readStream contents.
 	self populateWindows.
 	^ self visualize: events

@@ -25,7 +25,7 @@ BaselineOfDebuggingSessionAnalysis >> loadDSSpy [
 
 	Metacello new
 		baseline: 'DebuggingSpy';
-		repository: 'github://StevenCostiou/DebuggingSpy:P12';
+		repository: 'github://StevenCostiou/DebuggingSpy:P14';
 		onWarningLog;
 		load
 ]

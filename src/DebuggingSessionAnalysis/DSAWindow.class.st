@@ -54,52 +54,53 @@ DSAWindow >> events [
 
 { #category : 'accessing' }
 DSAWindow >> events: someEvents [
-	| dts |
-	self assert: [ someEvents isCollection ].
-	self assert: [ someEvents notEmpty ].
-	events := someEvents.
-	
-	dts := events collect: #dateTime.
-	
-	firstEventTime := dts min.
-	lastEventTime := dts max.
-	
-	duration := lastEventTime - firstEventTime
-	
 
+	| dateTimes |
+	events := someEvents.
+
+	dateTimes := events collect: #dateTime.
+
+	firstEventTime := dateTimes min.
+	lastEventTime := dateTimes max.
+
+	duration := lastEventTime - firstEventTime
 ]
 
 { #category : 'accessing' }
 DSAWindow >> firstEventTime [
+
 	^ firstEventTime
 ]
 
 { #category : 'testing' }
 DSAWindow >> hasNextWindow [
+
 	^ nextWindows notEmpty
 ]
 
 { #category : 'initialization' }
 DSAWindow >> initialize [
+
 	super initialize.
 	nextWindows := OrderedCollection new
 ]
 
 { #category : 'public - inspector' }
 DSAWindow >> inspectionDebuggingEvents [
+
 	<inspectorPresentationOrder: 50 title: 'Actions'>
 	^ SpRoassalInspectorPresenter new
-		canvas: self visualizeDebuggingActions;
-		yourself
-
+		  canvas: self visualizeDebuggingActions;
+		  yourself
 ]
 
 { #category : 'public - inspector' }
 DSAWindow >> inspectorCanvas [
+
 	<inspectorPresentationOrder: 50 title: 'Timeline'>
-	^ SpRoassal3InspectorPresenter new
-		canvas: self visualize;
-		yourself
+	^ SpRoassalInspectorPresenter new
+		  canvas: self visualize;
+		  yourself
 ]
 
 { #category : 'public - inspector' }
@@ -110,10 +111,11 @@ DSAWindow >> inspectorCanvasContext: aContext [
 
 { #category : 'public - inspector' }
 DSAWindow >> inspectorEvents [
+
 	<inspectorPresentationOrder: 90 title: 'All events'>
 	^ SpListPresenter new
-			items: self events;
-			yourself
+		  items: self events;
+		  yourself
 ]
 
 { #category : 'testing' }
@@ -137,26 +139,31 @@ DSAWindow >> isSenderOrImplementor [
 
 { #category : 'accessing' }
 DSAWindow >> lastEventTime [
+
 	^ lastEventTime
 ]
 
 { #category : 'accessing' }
 DSAWindow >> nextWindows [
+
 	^ nextWindows
 ]
 
 { #category : 'accessing' }
 DSAWindow >> nextWindowsAsSet [
+
 	^ nextWindows asSet
 ]
 
 { #category : 'printing' }
 DSAWindow >> numberOfEvents [
+
 	^ events size
 ]
 
 { #category : 'printing' }
 DSAWindow >> printOn: str [
+
 	super printOn: str.
 	str nextPut: $(.
 	str nextPutAll: self numberOfEvents asString.
@@ -164,12 +171,13 @@ DSAWindow >> printOn: str [
 	self isDebugger ifTrue: [ str nextPutAll: ' debugger' ].
 	self isInspector ifTrue: [ str nextPutAll: ' inspector' ].
 	self isSenderOrImplementor ifTrue: [ str nextPutAll: ' navigation' ].
-	str nextPut: $).
+	str nextPut: $)
 ]
 
 { #category : 'accessing' }
 DSAWindow >> selectedColor [
-	self isDebugger ifTrue: [ ^  Color pink ].
+
+	self isDebugger ifTrue: [ ^ Color pink ].
 	self isInspector ifTrue: [ ^ Color blue ].
 	self isSenderOrImplementor ifTrue: [ ^ Color green ].
 	^ Color gray
@@ -177,17 +185,20 @@ DSAWindow >> selectedColor [
 
 { #category : 'accessing' }
 DSAWindow >> sessionStart [
+
 	^ sessionStart
 ]
 
 { #category : 'accessing' }
 DSAWindow >> sessionStart: aDateAndTime [
+
 	sessionStart := aDateAndTime
 ]
 
 { #category : 'accessing' }
-DSAWindow >> toolInfos: aCollection [ 
-	toolInfos := aCollection 
+DSAWindow >> toolInfos: aCollection [
+
+	toolInfos := aCollection
 ]
 
 { #category : 'private - visualization' }
@@ -201,22 +212,21 @@ DSAWindow >> visualizeDebuggingActions [
 	| c |
 	c := RSCanvas new.
 	self debuggingActions do: [ :act |
-		| s s2 |
-		s := RSLabel new
-			     text: act glyph;
-			     color: act glyphColor.
-		s2 := RSLabel new text: act printContext.
+			| s s2 |
+			s := RSLabel new
+				     text: act glyph;
+				     color: act glyphColor.
+			s2 := RSLabel new text: act printContext.
 
-		s ifNotNil: [
-			s @ RSPopup.
-			c
-				add: (s model: act);
-				add: s2 ] ].
+			s ifNotNil: [
+					s @ RSPopup.
+					c
+						add: (s model: act);
+						add: s2 ] ].
 	RSGridLayout new
 		lineItemsCount: 2;
 		on: c shapes.
-	(2 to: c shapes size by: 2) do: [ :i |
-		(c shapes at: i) translateBy: 40 @ 0 ].
+	(2 to: c shapes size by: 2) do: [ :i | (c shapes at: i) translateBy: 40 @ 0 ].
 	^ c @ RSCanvasController
 ]
 
